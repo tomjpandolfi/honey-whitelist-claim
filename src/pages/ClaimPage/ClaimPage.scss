@@ -1,0 +1,80 @@
+@import "../../sass/variables.scss";
+@import "../../sass/global.scss";
+
+.connect-wallet-page {
+  background: $body-background;
+  text-align: center;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  align-items: center;
+  padding: 5%;
+  justify-content: center;
+  box-sizing: border-box;
+  position: relative;
+
+  h1 {
+    font-size: 40px;
+    margin-bottom: 30px;
+  }
+
+  button {
+    margin-top: 30px;
+  }
+
+  .countdown {
+    margin-top: 30px;
+  }
+
+  .wallet-options-modal {
+    .modal-content {
+      padding: 20px 20px 30px;
+      width: 350px;
+    }
+
+    .wallet-options-container {
+      width: 100%;
+
+      h1 {
+        margin-bottom: 20px;
+        text-align: center;
+        margin-top: 10px;
+        font-size: 24px;
+        line-height: 30px;
+      }
+
+      .line {
+        margin-bottom: 20px;
+        background-color: $dark-brown;
+        height: 1px;
+        opacity: 0.3;
+      }
+
+      .wallet-option {
+        background: $body-background;
+        margin-bottom: 25px;
+        cursor: pointer;
+        border-radius: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 13px 20px;
+        border: 0.5px solid #df892600;
+        transition: all 0.3s;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        img {
+          height: 30px;
+          width: auto;
+        }
+
+        &:hover {
+          border: 1px solid #df8a26;
+        }
+      }
+    }
+  }
+}
