@@ -1,71 +1,72 @@
-import { useContext, useState } from "react"
-import Countdown from "react-countdown"
-import { Text } from "degen"
-import Button from "../../components/Button"
-import ModalContainer from "../../components/ModalContainer/ModalContainer"
-import TitleText from "../../components/TitleText"
-import { WalletContext } from "../../context/wallet"
-import walletOptions from "../../helpers/connectWallet"
-import "./ClaimPage.scss"
+import Countdown from 'react-countdown';
+import { Text } from 'degen';
+import Button from '../../components/Button';
+import TitleText from '../../components/TitleText';
+import './ClaimPage.scss';
+import { claimTokens } from './claim';
+
+import wlList from '../../wlList.json';
+import BN from 'bn.js';
+import { u64 } from '@saberhq/token-utils';
+import { useSolana, useWallet } from '@saberhq/use-solana';
+import { useWalletKit } from '@gokiprotocol/walletkit';
 
 const renderLaunchCountdown = (props: {
-  hours: any
-  minutes: any
-  seconds: any
-  days: any
+  hours: any;
+  minutes: any;
+  seconds: any;
+  days: any;
 }) => {
-  console.log()
+  console.log();
   return (
-    <div className="launch-countdown">
+    <div className='launch-countdown'>
       <div>
         <Text>
           {props.hours} hours {props.minutes} mins {props.seconds} secs
         </Text>
       </div>
     </div>
-  )
-}
+  );
+};
 
 const ClaimPage = () => {
-  const { connectWallet, walletAddress } = useContext(WalletContext)
-  const [isWalletSelectVisible, setIsWalletSelectVisible] = useState<boolean>()
-  const hasAppOpened = new Date().valueOf() > 1644283443002
-  const claimToken = () => {}
+  const { wallet, provider } = useWallet();
+  const { connect } = useWalletKit();
+  const hasAppOpened = new Date().valueOf() > 1644283443002;
+
+  const handleClaim = async () => {
+    if (provider && wallet?.publicKey) {
+      const entryIndex = wlList.findIndex(
+        (e) => e.account.toString() === wallet.publicKey?.toString()
+      );
+
+      if (entryIndex === -1) {
+        alert(
+          'Invalid address. Please connect with a different wallet and try again.'
+        );
+        return;
+      }
+
+      const entry = wlList.find(
+        (e) => e.account.toString() === wallet.publicKey?.toString()
+      )!;
+
+      await claimTokens(
+        provider,
+        wallet.publicKey,
+        new BN(entry.amount),
+        new u64(entryIndex)
+      );
+
+      alert(`Successfully claimed ${entry.amount} tokens`);
+    }
+  };
 
   return (
-    <div className="connect-wallet-page">
-      {!walletAddress && (
-        <ModalContainer
-          className="wallet-options-modal"
-          isVisible={isWalletSelectVisible}
-          onClose={() => setIsWalletSelectVisible(false)}
-        >
-          <div className="wallet-options-container">
-            <TitleText>Connect wallet</TitleText>
-            <div className="line" />
-            {walletOptions.map(({ name, connect, icon }) => (
-              <div
-                key={name}
-                onClick={() => {
-                  connectWallet(name, connect)
-                }}
-                className="wallet-option"
-              >
-                <Text>{name}</Text>
-                <img src={icon} alt={`${name} icon`} />
-              </div>
-            ))}
-          </div>
-        </ModalContainer>
-      )}
-
+    <div className='connect-wallet-page'>
       <TitleText>Honey Finance Whitelist Token Claim</TitleText>
-      <Text>
-        Complete this quiz to verify your knowledge of the Honey protocol and
-        attempt to earn a whitelist spot for our upcoming mint
-      </Text>
       {!hasAppOpened ? (
-        <div className="countdown">
+        <div className='countdown'>
           <Text>Opens in </Text>
           <Countdown
             date={new Date(1644283443002)}
@@ -74,16 +75,25 @@ const ClaimPage = () => {
         </div>
       ) : (
         <Button
-          secondary={walletAddress ? false : true}
-          title={walletAddress ? "Claim token" : "Connect wallet"}
-          onClick={
-            walletAddress ? claimToken : () => setIsWalletSelectVisible(true)
-          }
-          className="connect-wallet-button"
+          secondary={wallet ? false : true}
+          title={wallet ? 'Claim token' : 'Connect wallet'}
+          onClick={wallet ? handleClaim : connect}
+          className='connect-wallet-button'
         />
       )}
+      <Text>
+        Already claimed? Mint{' '}
+        <a
+          href='https://honey-mint.vercel.app'
+          target='_blank'
+          rel='noopener noreferrer'
+          style={{ color: '#FF4539' }}
+        >
+          here
+        </a>
+      </Text>
     </div>
-  )
-}
+  );
+};
 
-export default ClaimPage
+export default ClaimPage;
