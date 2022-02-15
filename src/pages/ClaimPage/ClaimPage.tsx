@@ -8,7 +8,7 @@ import { claimTokens } from './claim';
 import wlList from '../../wlList.json';
 import BN from 'bn.js';
 import { u64 } from '@saberhq/token-utils';
-import { useSolana, useWallet } from '@saberhq/use-solana';
+import { useSolana } from '@saberhq/use-solana';
 import { useWalletKit } from '@gokiprotocol/walletkit';
 
 const renderLaunchCountdown = (props: {
@@ -30,35 +30,40 @@ const renderLaunchCountdown = (props: {
 };
 
 const ClaimPage = () => {
-  const { wallet, provider } = useWallet();
+  const { wallet, provider, connected } = useSolana();
   const { connect } = useWalletKit();
   const hasAppOpened = new Date().valueOf() > 1644283443002;
 
   const handleClaim = async () => {
-    if (provider && wallet?.publicKey) {
-      const entryIndex = wlList.findIndex(
-        (e) => e.account.toString() === wallet.publicKey?.toString()
-      );
-
-      if (entryIndex === -1) {
-        alert(
-          'Invalid address. Please connect with a different wallet and try again.'
+    try {
+      if (wallet?.publicKey) {
+        const entryIndex = wlList.findIndex(
+          (e) => e.account.toString() === wallet.publicKey?.toString()
         );
-        return;
+
+        if (entryIndex === -1) {
+          alert(
+            'Invalid address. Please connect with a different wallet and try again.'
+          );
+          return;
+        }
+
+        const entry = wlList.find(
+          (e) => e.account.toString() === wallet.publicKey?.toString()
+        )!;
+
+        await claimTokens(
+          provider,
+          wallet,
+          wallet.publicKey,
+          new BN(entry.amount),
+          new u64(entry.index)
+        );
+
+        alert(`Successfully claimed ${entry.amount} tokens`);
       }
-
-      const entry = wlList.find(
-        (e) => e.account.toString() === wallet.publicKey?.toString()
-      )!;
-
-      await claimTokens(
-        provider,
-        wallet.publicKey,
-        new BN(entry.amount),
-        new u64(entryIndex)
-      );
-
-      alert(`Successfully claimed ${entry.amount} tokens`);
+    } catch (err) {
+      alert((err as Error).message);
     }
   };
 
@@ -75,8 +80,14 @@ const ClaimPage = () => {
         </div>
       ) : (
         <Button
-          secondary={wallet ? false : true}
-          title={wallet ? 'Claim token' : 'Connect wallet'}
+          secondary={wallet && connected ? false : true}
+          title={
+            wallet
+              ? 'Claim token'
+              : connected
+              ? 'Connecting...'
+              : 'Connect wallet'
+          }
           onClick={wallet ? handleClaim : connect}
           className='connect-wallet-button'
         />
