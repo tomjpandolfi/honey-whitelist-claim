@@ -18,12 +18,12 @@ import { MerkleDistributorJSON } from './idl';
 
 global.Buffer = global.Buffer || require('buffer').Buffer;
 
-const MINT = new PublicKey('4ri4xMbRDFwx3sxQ4JqUGcxTw8VXwwkTnkL3KESzuYvY');
+const MINT = new PublicKey('CGhQwoTKewuxd9PRYcwRt3g5SS1V15YHHBMzrgyACnUS');
 const DISTRIBUTOR_PDA = new PublicKey(
-  'ApjM9pLecbC1HoTifRN8TpD1PMnQCr3iuMbEb8eSN4a5'
+  '2J2cjgHfRMGKCzt2emyQnpt3VLwVfwV6yLnujBRcd4gr'
 );
 const SOURCE_ATA = new PublicKey(
-  'AbtYw5ruJMifCiXBdd476J2fxJ6ABpDs6k13jWZ7PraD'
+  'ALN18VyJmcCeU5wwJWuCobQ3t94BgL2sksPJ44guRbVA'
 );
 const PROGRAM_ID = new PublicKey('MRKGLMizK9XSTaD1d1jbVkdHZbQVCSnPpYiTw9aKQv8');
 
